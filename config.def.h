@@ -14,6 +14,7 @@ static const char *colors[] = {
 };
 
 static const float linespacing = 1.4;
+static const int progressheight = 5;
 
 /* how much screen estate is to be used at max for the content */
 static const float usablewidth = 0.75;
