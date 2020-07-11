@@ -29,6 +29,7 @@ char *argv0;
 #define LEN(a)         (sizeof(a) / sizeof(a)[0])
 #define LIMIT(x, a, b) (x) = (x) < (a) ? (a) : (x) > (b) ? (b) : (x)
 #define MAXFONTSTRLEN  128
+#define TEXTW(X)                (drw_fontset_getwidth(d, (X)))
 
 typedef enum {
 	NONE = 0,
@@ -123,6 +124,8 @@ static int slidecount = 0;
 static XWindow xw;
 static Drw *d = NULL;
 static Clr *sc;
+static Clr *scgreen;
+static Clr *scred;
 static Fnt *fonts[NUMFONTSCALES];
 static int running = 1;
 
@@ -133,6 +136,8 @@ static void (*handler[LASTEvent])(XEvent *) = {
 	[Expose] = expose,
 	[KeyPress] = kpress,
 };
+
+int otherscheme;
 
 int
 filter(int fd, const char *cmd)
@@ -521,22 +526,53 @@ void
 xdraw()
 {
 	unsigned int height, width, i;
+	int xcoord;
 	Image *im = slides[idx].img;
-
 	getfontsize(&slides[idx], &width, &height);
 	XClearWindow(xw.dpy, xw.win);
 
 	if (!im) {
 		drw_rect(d, 0, 0, xw.w, xw.h, 1, 1);
-		for (i = 0; i < slides[idx].linecount; i++)
+		for (i = 0; i < slides[idx].linecount; i++) {
+			xcoord = (xw.w - width) / 2;
+ 			if (slides[idx].lines[i][0] == ':') {
+				otherscheme = 1;
+				switch (slides[idx].lines[i][1])
+				{
+				case 'g':
+					drw_setscheme(d,scgreen);
+					break;
+				case 'r':
+					drw_setscheme(d,scred);
+					break;
+				default:
+					otherscheme = 0;
+					break;
+				}
+				if (otherscheme)
+					xcoord -= TEXTW(":r");
+			}
 			drw_text(d,
-			         (xw.w - width) / 2,
+			         xcoord,
 			         (xw.h - height) / 2 + i * linespacing * d->fonts->h,
 			         width,
 			         d->fonts->h,
 			         0,
 			         slides[idx].lines[i],
 			         0);
+			if (otherscheme) {
+				drw_rect(d,
+					(xw.w - width) / 2 - TEXTW(":r"),
+					(xw.h - height) / 2 + i * linespacing * d->fonts->h,
+					TEXTW(":r"), d->fonts->h, 1, 1);
+			}
+			if (otherscheme) {
+				drw_setscheme(d,sc);
+				otherscheme = 0;
+			}
+		}
+
+
 		if (idx != 0 && progressheight != 0) {
 			drw_rect(d,
 			         0, xw.h - progressheight,
@@ -598,6 +634,8 @@ xinit()
 	if (!(d = drw_create(xw.dpy, xw.scr, xw.win, xw.w, xw.h)))
 		die("sent: Unable to create drawing context");
 	sc = drw_scm_create(d, colors, 2);
+	scgreen = drw_scm_create(d, greencolors, 2);
+	scred = drw_scm_create(d, redcolors, 2);
 	drw_setscheme(d, sc);
 	XSetWindowBackground(xw.dpy, xw.win, sc[ColBg].pixel);
 

@@ -13,6 +13,18 @@ static const char *colors[] = {
 	"#292F3A", /* background color */
 };
 
+
+static const char *greencolors[] = {
+	"#52E067", /* foreground color */
+	"#292F3A", /* background color */
+};
+
+static const char *redcolors[] = {
+	"#E0527E", /* foreground color */
+	"#292F3A", /* background color */
+};
+
+
 static const float linespacing = 1.4;
 static const int progressheight = 5;
 
