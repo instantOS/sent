@@ -577,8 +577,14 @@ xdraw()
 		for (i = 0; i < slides[idx].linecount; i++) {
 			output = slides[idx].lines[i];
 			xcoord = (xw.w - width) / 2;
- 			if (slides[idx].lines[i][0] == ':') {
-				otherscheme = 2;
+			otherscheme = 0;
+ 			
+			if (slides[idx].lines[i][0] == '>') {
+				otherscheme = 1;
+			}
+ 			
+			if (slides[idx].lines[i][otherscheme] == ':') {
+				otherscheme += 2;
 				switch (slides[idx].lines[i][1])
 				{
 				case 'g':
@@ -594,11 +600,9 @@ xdraw()
 					otherscheme = 0;
 					break;
 				}
-			} else if (slides[idx].lines[i][0] == '>') {
-				otherscheme = 1;
 			}
 
-			if (otherscheme) {
+			if (otherscheme == 1 || otherscheme == 3) {
 				XEvent ev;
 				while (1) {
 					XNextEvent(xw.dpy, &ev);
