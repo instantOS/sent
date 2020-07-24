@@ -24,6 +24,10 @@ static const char *redcolors[] = {
 	"#292F3A", /* background color */
 };
 
+static const char *bluecolors[] = {
+	"#5293E1", /* foreground color */
+	"#292F3A", /* background color */
+};
 
 static const float linespacing = 1.4;
 static const int progressheight = 5;

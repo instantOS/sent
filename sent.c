@@ -125,6 +125,7 @@ static XWindow xw;
 static Drw *d = NULL;
 static Clr *sc;
 static Clr *scgreen;
+static Clr *scblue;
 static Clr *scred;
 static Fnt *fonts[NUMFONTSCALES];
 static int running = 1;
@@ -476,7 +477,12 @@ advance(const Arg *arg)
 {
 	int new_idx = idx + arg->i;
 	LIMIT(new_idx, 0, slidecount-1);
+
 	if (new_idx != idx) {
+		if (arg->i < 0)
+			animrect(0, 0, 0, xw.h, 0, 0, xw.w, xw.h);
+		else
+			animrect(xw.w, 0, 0, xw.h, 0, 0, xw.w, xw.h);
 		if (slides[idx].img)
 			slides[idx].img->state &= ~SCALED;
 		idx = new_idx;
@@ -522,6 +528,32 @@ run()
 	}
 }
 
+double easeOutQuint( double t ) {
+    return 1 + (--t) * t * t;
+}
+
+void animrect(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2) {
+	int time;
+	Clr *prevscm;
+	time  = 0;
+	int framecount = 10;
+	double timefactor = 0;
+
+	prevscm = d->scheme;
+	drw_setscheme(d, scblue);
+	while (time < framecount)
+	{
+		timefactor = easeOutQuint((double)time/framecount);
+		drw_rect(d, x1 + (x2 - x1) * timefactor, y1 + (y2 - y1) * timefactor, w1 + (w2 - w1) * timefactor, h1 + (h2 - h1) * timefactor, 1, 0);
+		//drw_rect(d, 0, 0, xw.w, xw.h, 1, 1);
+		drw_map(d, xw.win, 0, 0, xw.w, xw.h);
+		time++;
+		usleep(19000);
+	}
+	drw_setscheme(d, prevscm);
+
+}
+
 void
 xdraw()
 {
@@ -541,6 +573,9 @@ xdraw()
 				{
 				case 'g':
 					drw_setscheme(d,scgreen);
+					break;
+				case 'b':
+					drw_setscheme(d,scblue);
 					break;
 				case 'r':
 					drw_setscheme(d,scred);
@@ -591,7 +626,7 @@ xdraw()
 void
 xhints()
 {
-	XClassHint class = {.res_name = "sent", .res_class = "presenter"};
+	XClassHint class = {.res_name = "presenter", .res_class = "presenter"};
 	XWMHints wm = {.flags = InputHint, .input = True};
 	XSizeHints *sizeh = NULL;
 
@@ -635,6 +670,7 @@ xinit()
 		die("sent: Unable to create drawing context");
 	sc = drw_scm_create(d, colors, 2);
 	scgreen = drw_scm_create(d, greencolors, 2);
+	scblue = drw_scm_create(d, bluecolors, 2);
 	scred = drw_scm_create(d, redcolors, 2);
 	drw_setscheme(d, sc);
 	XSetWindowBackground(xw.dpy, xw.win, sc[ColBg].pixel);
