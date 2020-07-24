@@ -480,9 +480,9 @@ advance(const Arg *arg)
 
 	if (new_idx != idx) {
 		if (arg->i < 0)
-			animrect(0, 0, 0, xw.h, 0, 0, xw.w, xw.h);
+			animrect(0, 0, 0, xw.h - progressheight, 0, 0, xw.w, xw.h);
 		else
-			animrect(xw.w, 0, 0, xw.h, 0, 0, xw.w, xw.h);
+			animrect(xw.w, 0, 0, xw.h - progressheight, 0, 0, xw.w, xw.h);
 		if (slides[idx].img)
 			slides[idx].img->state &= ~SCALED;
 		idx = new_idx;
@@ -559,16 +559,26 @@ xdraw()
 {
 	unsigned int height, width, i;
 	int xcoord;
+	char *output;
 	Image *im = slides[idx].img;
 	getfontsize(&slides[idx], &width, &height);
 	XClearWindow(xw.dpy, xw.win);
 
 	if (!im) {
 		drw_rect(d, 0, 0, xw.w, xw.h, 1, 1);
+		
+		if (idx != 0 && progressheight != 0) {
+			drw_rect(d,
+			         0, xw.h - progressheight,
+			         (xw.w * idx)/(slidecount - 1), progressheight,
+			         1, 0);
+		}
+
 		for (i = 0; i < slides[idx].linecount; i++) {
+			output = slides[idx].lines[i];
 			xcoord = (xw.w - width) / 2;
  			if (slides[idx].lines[i][0] == ':') {
-				otherscheme = 1;
+				otherscheme = 2;
 				switch (slides[idx].lines[i][1])
 				{
 				case 'g':
@@ -584,35 +594,33 @@ xdraw()
 					otherscheme = 0;
 					break;
 				}
-				if (otherscheme)
-					xcoord -= TEXTW(":r");
+			} else if (slides[idx].lines[i][0] == '>') {
+				otherscheme = 1;
 			}
+
+			if (otherscheme) {
+				XEvent ev;
+				while (1) {
+					XNextEvent(xw.dpy, &ev);
+					if (ev.type == KeyPress || ev.type == ButtonPress) {
+						break;
+					}
+					drw_map(d, xw.win, 0, 0, xw.w, xw.h);
+				}
+			}
+
 			drw_text(d,
 			         xcoord,
 			         (xw.h - height) / 2 + i * linespacing * d->fonts->h,
 			         width,
 			         d->fonts->h,
 			         0,
-			         slides[idx].lines[i],
+			         output + otherscheme,
 			         0);
-			if (otherscheme) {
-				drw_rect(d,
-					(xw.w - width) / 2 - TEXTW(":r"),
-					(xw.h - height) / 2 + i * linespacing * d->fonts->h,
-					TEXTW(":r"), d->fonts->h, 1, 1);
-			}
 			if (otherscheme) {
 				drw_setscheme(d,sc);
 				otherscheme = 0;
 			}
-		}
-
-
-		if (idx != 0 && progressheight != 0) {
-			drw_rect(d,
-			         0, xw.h - progressheight,
-			         (xw.w * idx)/(slidecount - 1), progressheight,
-			         1, 0);
 		}
 
 		drw_map(d, xw.win, 0, 0, xw.w, xw.h);
