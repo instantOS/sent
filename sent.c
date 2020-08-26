@@ -125,6 +125,7 @@ static XWindow xw;
 static Drw *d = NULL;
 static Clr *sc;
 static Clr *scgreen;
+static Clr *scyellow;
 static Clr *scblue;
 static Clr *scred;
 static Fnt *fonts[NUMFONTSCALES];
@@ -590,6 +591,9 @@ xdraw()
 				case 'g':
 					drw_setscheme(d,scgreen);
 					break;
+				case 'y':
+					drw_setscheme(d,scyellow);
+					break;
 				case 'b':
 					drw_setscheme(d,scblue);
 					break;
@@ -682,6 +686,7 @@ xinit()
 		die("sent: Unable to create drawing context");
 	sc = drw_scm_create(d, colors, 2);
 	scgreen = drw_scm_create(d, greencolors, 2);
+	scyellow = drw_scm_create(d, yellowcolors, 2);
 	scblue = drw_scm_create(d, bluecolors, 2);
 	scred = drw_scm_create(d, redcolors, 2);
 	drw_setscheme(d, sc);

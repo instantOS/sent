@@ -19,6 +19,11 @@ static const char *greencolors[] = {
 	"#292F3A", /* background color */
 };
 
+static const char *yellowcolors[] = {
+	"#E09F52", /* foreground color */
+	"#292F3A", /* background color */
+};
+
 static const char *redcolors[] = {
 	"#E0527E", /* foreground color */
 	"#292F3A", /* background color */
