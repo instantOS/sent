@@ -12,7 +12,7 @@ also:
 terminal presentations
 don't support images…
 
-@nyan.png
+# @nyan.png
 this text will not be displayed, since the @ at the start of the first line
 makes this paragraph an image slide.
 
@@ -43,6 +43,13 @@ $ sent FILE1 [FILE2 …]
 
 
 
+This appears first
+>This appears after pressing a button
+This appears with the line above
+>Click a second time to make this appear
+:b This is blue
+>
+:r this is red
 \
 \
 
