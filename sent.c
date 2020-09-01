@@ -601,13 +601,14 @@ xdraw()
 			otherscheme = 0;
 			if (slides[idx].lines[i][0] == '>') {
  		        counter += 1;
+                otherscheme = 1;
                 if (counter >= progress)
                     break; 
             }
 
 			if (slides[idx].lines[i][otherscheme] == ':') {
 				otherscheme += 2;
-				switch (slides[idx].lines[i][1])
+				switch (slides[idx].lines[i][otherscheme - 1])
 				{
 				case 'g':
 					drw_setscheme(d,scgreen);
