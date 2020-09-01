@@ -140,6 +140,9 @@ static void (*handler[LASTEvent])(XEvent *) = {
 };
 
 int otherscheme;
+int progress = 1;
+int pointcounter;
+int counter;
 
 int
 filter(int fd, const char *cmd)
@@ -479,16 +482,24 @@ advance(const Arg *arg)
 	int new_idx = idx + arg->i;
 	LIMIT(new_idx, 0, slidecount-1);
 
-	if (new_idx != idx) {
-		if (arg->i < 0)
-			animrect(0, 0, 0, xw.h - progressheight, 0, 0, xw.w, xw.h);
-		else
-			animrect(xw.w, 0, 0, xw.h - progressheight, 0, 0, xw.w, xw.h);
-		if (slides[idx].img)
-			slides[idx].img->state &= ~SCALED;
-		idx = new_idx;
-		xdraw();
-	}
+    if (progress <= pointcounter && progress >= 1) {
+        progress += arg->i;
+        xdraw();
+        return;
+    } else {
+        progress = 1;
+        if (new_idx != idx) {
+            if (arg->i < 0)
+                animrect(0, 0, 0, xw.h - progressheight, 0, 0, xw.w, xw.h);
+            else
+                animrect(xw.w, 0, 0, xw.h - progressheight, 0, 0, xw.w, xw.h);
+            if (slides[idx].img)
+                slides[idx].img->state &= ~SCALED;
+            idx = new_idx;
+            xdraw();
+        }
+    }
+
 }
 
 void
@@ -574,16 +585,26 @@ xdraw()
 			         (xw.w * idx)/(slidecount - 1), progressheight,
 			         1, 0);
 		}
+        
+        pointcounter = 0;
 
+		for (i = 0; i < slides[idx].linecount; i++) {
+			if (slides[idx].lines[i][0] == '>') {
+                pointcounter += 1;
+            }
+        }
+
+ 		counter = 0;	
 		for (i = 0; i < slides[idx].linecount; i++) {
 			output = slides[idx].lines[i];
 			xcoord = (xw.w - width) / 2;
 			otherscheme = 0;
- 			
 			if (slides[idx].lines[i][0] == '>') {
-				otherscheme = 1;
-			}
- 			
+ 		        counter += 1;
+                if (counter >= progress)
+                    break; 
+            }
+
 			if (slides[idx].lines[i][otherscheme] == ':') {
 				otherscheme += 2;
 				switch (slides[idx].lines[i][1])
@@ -603,17 +624,6 @@ xdraw()
 				default:
 					otherscheme = 0;
 					break;
-				}
-			}
-
-			if (otherscheme == 1 || otherscheme == 3) {
-				XEvent ev;
-				while (1) {
-					XNextEvent(xw.dpy, &ev);
-					if (ev.type == KeyPress || ev.type == ButtonPress) {
-						break;
-					}
-					drw_map(d, xw.win, 0, 0, xw.w, xw.h);
 				}
 			}
 
