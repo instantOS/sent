@@ -9,29 +9,29 @@ static char *fontfallbacks[] = {
 #define FONTSZ(x) ((int)(10.0 * powf(1.1288, (x)))) /* x in [0, NUMFONTSCALES-1] */
 
 static const char *colors[] = {
-	"#FEFEFE", /* foreground color */
-	"#292F3A", /* background color */
+	"#DFDFDF", /* foreground color */
+	"#121212", /* background color */
 };
 
 
 static const char *greencolors[] = {
-	"#52E067", /* foreground color */
-	"#292F3A", /* background color */
+	"#1e8e3e", /* foreground color */
+	"#121212", /* background color */
 };
 
 static const char *yellowcolors[] = {
-	"#E09F52", /* foreground color */
-	"#292F3A", /* background color */
+	"#f9ab00", /* foreground color */
+	"#121212", /* background color */
 };
 
 static const char *redcolors[] = {
-	"#E0527E", /* foreground color */
-	"#292F3A", /* background color */
+	"#d93025", /* foreground color */
+	"#121212", /* background color */
 };
 
 static const char *bluecolors[] = {
-	"#5293E1", /* foreground color */
-	"#292F3A", /* background color */
+	"#536DFE", /* foreground color */
+	"#121212", /* background color */
 };
 
 static const float linespacing = 1.4;
